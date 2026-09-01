@@ -1,8 +1,28 @@
 {
+  "id": "/?source=pwa",
   "name": "Pāṇini Mobile",
   "short_name": "Pāṇini",
+  "description": "Aplicativo móvel do Pāṇini para codificação e decodificação de logogramas.",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#f7f6f2",
-  "theme_color": "#0d0d0d"
+  "theme_color": "#0d0d0d",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }
