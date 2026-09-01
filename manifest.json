@@ -1,0 +1,8 @@
+{
+  "name": "Pāṇini Mobile",
+  "short_name": "Pāṇini",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f7f6f2",
+  "theme_color": "#0d0d0d"
+}
