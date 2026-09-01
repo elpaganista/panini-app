@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pāṇini Mobile</title>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.3.2/gifshot.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+    :root {
+      --bg-color: #f7f6f2;
+      --card-bg: #ffffff;
+      --text-color: #1a1a1a;
+      --subtext-color: #666666;
+      --border-color: #eae6df;
+      --tab-bg: #f4f2ec;
+      --tab-border: #e5e0d8;
+      --tab-btn-inactive: #666;
+      --tab-btn-active-bg: #ffffff;
+      --tab-btn-active-color: #0d0d0d;
+      --canvas-bg: #fafaf8;
+      --canvas-border: #e8e4dc;
+      --input-bg: #f7f6f2;
+      --input-border: #e2ded7;
+      --input-focus-border: #1a1a1a;
+      --input-focus-bg: #ffffff;
+      --primary-btn-bg: #0d0d0d;
+      --primary-btn-hover: #333333;
+      --primary-btn-color: #ffffff;
+      --link-btn-bg: #0076d6;
+      --link-btn-hover: #005bb5;
+      --result-box-bg: #fafaf8;
+      --result-box-border: #e8e4dc;
+      --drop-zone-bg: #fafaf8;
+      --drop-zone-border: #dcd7ce;
+      --drop-zone-hover-bg: #f4f2ec;
+      --drop-zone-hover-border: #0d0d0d;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --text-color: #f7f6f2;
+      --subtext-color: #a0a0a0;
+      --border-color: #2c2c2c;
+      --tab-bg: #252525;
+      --tab-border: #333333;
+      --tab-btn-inactive: #a0a0a0;
+      --tab-btn-active-bg: #1e1e1e;
+      --tab-btn-active-color: #f7f6f2;
+      --canvas-bg: #181818;
+      --canvas-border: #2c2c2c;
+      --input-bg: #252525;
+      --input-border: #333333;
+      --input-focus-border: #f7f6f2;
+      --input-focus-bg: #1e1e1e;
+      --primary-btn-bg: #f7f6f2;
+      --primary-btn-hover: #e0e0e0;
+      --primary-btn-color: #121212;
+      --link-btn-bg: #1e88e5;
+      --link-btn-hover: #1565c0;
+      --result-box-bg: #181818;
+      --result-box-border: #2c2c2c;
+      --drop-zone-bg: #181818;
+      --drop-zone-border: #333333;
+      --drop-zone-hover-bg: #252525;
+      --drop-zone-hover-border: #f7f6f2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 15px 10px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .top-bar {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .toolbar-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .ui-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .ui-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--text-color);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .header-title { 
+      font-family: 'Cinzel', serif; 
+      font-weight: 600; 
+      font-size: 2rem; 
+      letter-spacing: 4px; 
+      color: var(--text-color); 
+      text-transform: uppercase; 
+      margin-bottom: 20px; 
+      text-align: center; 
+    }
+    
+    .app-card {
+      background: var(--card-bg);
+      padding: 20px 16px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 480px;
+      border: 1px solid var(--border-color);
+    }
+
+    .tab-container { display: flex; gap: 6px; background: var(--tab-bg); padding: 4px; border-radius: 12px; width: 100%; border: 1px solid var(--tab-border); }
+    .tab-btn { flex: 1; padding: 12px 10px; border: none; background: none; border-radius: 8px; font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.8rem; color: var(--tab-btn-inactive); cursor: pointer; text-align: center; }
+    .tab-btn.active { background: var(--tab-btn-active-bg); color: var(--tab-btn-active-color); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }
+    
+    .panel { display: none; width: 100%; flex-direction: column; align-items: center; gap: 18px; }
+    .panel.active { display: flex; }
+    
+    .canvas-container { position: relative; width: 100%; aspect-ratio: 1 / 1; max-width: 340px; display: flex; align-items: center; justify-content: center; background: var(--canvas-bg); border-radius: 12px; border: 1px solid var(--canvas-border); }
+    canvas { width: 100%; height: 100%; border-radius: 12px; }
+    
+    .input-section { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+    
+    .payload-type-selector { display: flex; gap: 6px; width: 100%; background: var(--canvas-bg); padding: 4px; border-radius: 10px; border: 1px solid var(--canvas-border); }
+    .payload-type-selector label { flex: 1; text-align: center; padding: 10px 0; font-size: 1rem; color: var(--subtext-color); cursor: pointer; border-radius: 8px; display: flex; align-items: center; justify-content: center; filter: grayscale(100%); }
+    .payload-type-selector input[type="radio"] { display: none; }
+    .payload-type-selector label.selected { background: var(--card-bg); color: var(--text-color); box-shadow: 0 1px 4px rgba(0,0,0,0.08); filter: none; }
+
+    .sub-panel { display: none; flex-direction: column; gap: 10px; width: 100%; }
+    .sub-panel.active { display: flex; }
+    
+    textarea, select, input[type="text"] { width: 100%; padding: 12px; background: var(--input-bg); border: 1.5px solid var(--input-border); border-radius: 10px; color: var(--text-color); font-size: 0.9rem; outline: none; font-family: 'Inter', sans-serif; }
+    textarea { min-height: 80px; resize: vertical; }
+    
+    .media-input-box { border: 1.5px dashed var(--drop-zone-border); padding: 14px; border-radius: 10px; background: var(--drop-zone-bg); text-align: center; cursor: pointer; font-size: 0.82rem; color: var(--subtext-color); }
+    
+    .formatting-options { display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--subtext-color); }
+    .formatting-options select { padding: 6px; width: auto; font-size: 0.78rem; }
+    
+    .action-row { display: flex; gap: 10px; width: 100%; }
+    button.primary-btn { flex: 1; padding: 14px; background: var(--primary-btn-bg); border: none; border-radius: 10px; color: var(--primary-btn-color); font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.88rem; cursor: pointer; }
+    
+    .controls { display: flex; flex-direction: column; gap: 8px; width: 100%; align-items: center; margin-top: 5px; }
+    .preset-btn { background: none; border: none; color: var(--subtext-color); text-decoration: underline; cursor: pointer; font-size: 0.8rem; padding: 6px; }
+    
+    .drop-zone { width: 100%; height: 130px; border: 2px dashed var(--drop-zone-border); border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: var(--drop-zone-bg); cursor: pointer; padding: 15px; text-align: center; }
+    .drop-zone p { color: var(--subtext-color); font-size: 0.8rem; }
+    
+    .result-box { width: 100%; background: var(--result-box-bg); border: 1px solid var(--result-box-border); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; align-items: center; gap: 10px; max-height: 250px; overflow-y: auto; }
+    .result-header { width: 100%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--result-box-border); padding-bottom: 6px; }
+    .result-box h4 { font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--subtext-color); letter-spacing: 1px; text-transform: uppercase; }
+    .result-box p.original-text { width: 100%; font-size: 0.9rem; font-weight: 500; color: var(--text-color); white-space: pre-wrap; word-break: break-word; }
+    
+    .extracted-image { max-width: 100%; max-height: 160px; border-radius: 8px; border: 1px solid var(--result-box-border); }
+    audio { width: 100%; margin-top: 5px; }
+    input[type="file"] { display: none; }
+
+    .mic-controls { display: flex; gap: 10px; width: 100%; align-items: center; }
+    .mic-btn { flex: 1; padding: 12px; background: #666; color: white; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; font-size: 0.85rem; }
+    .mic-btn.recording { background: #111; animation: pulse 1.2s infinite; }
+    [data-theme="dark"] .mic-btn.recording { background: #f7f6f2; color: #121212; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+
+    .vault-list { width: 100%; max-height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+    .vault-item { display: flex; justify-content: space-between; align-items: center; background: var(--canvas-bg); border: 1px solid var(--canvas-border); padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; }
+    .vault-actions { display: flex; gap: 6px; }
+    .vault-actions button { padding: 4px 6px; border: none; border-radius: 4px; font-size: 0.7rem; cursor: pointer; }
+    
+    .status-info { font-size: 0.78rem; color: var(--link-btn-bg); font-weight: 500; text-align: center; min-height: 16px; }
+    button.link-btn { padding: 10px 16px; background: var(--link-btn-bg); border: none; border-radius: 8px; color: white; font-weight: 500; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 6px; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <div class="toolbar-group">
+      <button class="ui-btn" onclick="toggleTheme()" id="themeToggleBtn" title="Alternar Tema">
+        <!-- Ícone dinâmico em P&B -->
+      </button>
+    </div>
+  </div>
+
+  <div class="header-title">Pāṇini</div>
+
+  <div class="app-card">
+    <div class="tab-container">
+      <button class="tab-btn active" onclick="switchTab('encoder')">Codificar</button>
+      <button class="tab-btn" onclick="switchTab('decoder')">Decodificar</button>
+    </div>
+
+    <!-- PAINEL ENCODER -->
+    <div id="encoderPanel" class="panel active">
+      <div class="canvas-container">
+        <canvas id="heptacanvas" width="1200" height="1200"></canvas>
+      </div>
+
+      <div class="input-section">
+        <div class="payload-type-selector">
+          <label class="selected" id="lbl-text" onclick="setPayloadType('text')" title="Texto">
+            <input type="radio" name="payloadType" value="text" checked> 📝
+          </label>
+          <label id="lbl-image" onclick="setPayloadType('image')" title="Imagem">
+            <input type="radio" name="payloadType" value="image"> 🖼️
+          </label>
+          <label id="lbl-audio" onclick="setPayloadType('audio')" title="Áudio">
+            <input type="radio" name="payloadType" value="audio"> 🎵
+          </label>
+          <label id="lbl-mic" onclick="setPayloadType('mic')" title="Gravação">
+            <input type="radio" name="payloadType" value="mic"> 🎙️
+          </label>
+        </div>
+
+        <div id="subPanelText" class="sub-panel active">
+          <textarea id="inputText" placeholder="Digite um texto ou link...">https://google.com</textarea>
+        </div>
+
+        <div id="subPanelImage" class="sub-panel">
+          <div class="media-input-box" onclick="document.getElementById('secretImageInput').click()">
+            <span id="imgInputLabel">Toque para escolher a Foto</span>
+            <input type="file" id="secretImageInput" accept="image/*" onchange="previewSecretImage(event)">
+          </div>
+          <div class="formatting-options">
+            <span>Redimensionar:</span>
+            <select id="imgResPreset">
+              <option value="150">150px (Leve)</option>
+              <option value="200" selected>200px (Padrão)</option>
+              <option value="250">250px (HD)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="subPanelAudio" class="sub-panel">
+          <div class="media-input-box" onclick="document.getElementById('secretAudioInput').click()">
+            <span id="audioInputLabel">Toque para escolher o Áudio</span>
+            <input type="file" id="secretAudioInput" accept="audio/*" onchange="handleAudioSelect(event)">
+          </div>
+        </div>
+
+        <div id="subPanelMic" class="sub-panel">
+          <div class="mic-controls">
+            <button class="mic-btn" id="btnMicRecord" onclick="toggleRecording()">● Gravar Áudio</button>
+          </div>
+          <audio id="micPreview" controls style="display:none;"></audio>
+          <div style="margin-top: 5px;">
+            <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-color);">Áudios Salvos:</span>
+            <div class="vault-list" id="vaultList"></div>
+          </div>
+        </div>
+
+        <div class="status-info" id="statusText"></div>
+
+        <div class="action-row">
+          <button class="primary-btn" id="btnGenerate" onclick="processAndGenerate()">Sintetizar Logograma</button>
+        </div>
+
+        <div class="controls">
+          <button class="preset-btn" onclick="saveImage()">Baixar Imagem PNG</button>
+          <button class="preset-btn" onclick="saveGif()" style="color:var(--link-btn-bg); font-weight:600;">Baixar GIF Animado</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAINEL DECODER -->
+    <div id="decoderPanel" class="panel">
+      <div class="drop-zone" onclick="document.getElementById('fileInput').click()">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="filter: grayscale(100%);">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+        <p>Toque para selecionar o Logograma (PNG ou GIF) e extrair</p>
+        <input type="file" id="fileInput" accept="image/png, image/gif" onchange="handleFileSelect(event)">
+      </div>
+
+      <div class="result-box">
+        <div class="result-header">
+          <h4 id="decodedHeader">Conteúdo Extraído</h4>
+        </div>
+        <div id="decodedContentArea" style="width: 100%; text-align: center;">
+          <p class="original-text" style="color: var(--subtext-color); text-align: center;">Aguardando imagem...</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const HEADERS = {
+      text: [0x48, 0x45, 0x50, 0x54],
+      image: [0x48, 0x45, 0x50, 0x49],
+      audio: [0x48, 0x45, 0x50, 0x41],
+      mic: [0x48, 0x45, 0x50, 0x41]
+    };
+
+    let selectedPayloadType = 'text';
+    let loadedSecretImage = null;
+    let rawAudioBuffer = null;
+    let cachedPayloadBytes = null;
+    let animationId = null;
+    let currentAnimPhase = 0;
+
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let recordedAudioBytes = null;
+    let isRecording = false;
+
+    // Ícones minimalistas em preto e branco (stroke via CSS)
+    const ICONS = {
+      moon: `<svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`,
+      sun: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`
+    };
+
+    function updateThemeIcon() {
+      const html = document.documentElement;
+      const btn = document.getElementById('themeToggleBtn');
+      if (html.getAttribute('data-theme') === 'dark') {
+        btn.innerHTML = ICONS.sun;
+        btn.setAttribute('title', 'Modo Claro');
+      } else {
+        btn.innerHTML = ICONS.moon;
+        btn.setAttribute('title', 'Modo Escuro');
+      }
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      if (html.getAttribute('data-theme') === 'dark') {
+        html.removeAttribute('data-theme');
+        localStorage.setItem('panini_theme', 'light');
+      } else {
+        html.setAttribute('data-theme', 'dark');
+        localStorage.setItem('panini_theme', 'dark');
+      }
+      updateThemeIcon();
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('panini_theme');
+      if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+      updateThemeIcon();
+    }
+
+    function setPayloadType(type) {
+      selectedPayloadType = type;
+      document.querySelectorAll('.payload-type-selector label').forEach(l => l.classList.remove('selected'));
+      document.getElementById(`lbl-${type}`).classList.add('selected');
+
+      document.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
+      if (type === 'text') document.getElementById('subPanelText').classList.add('active');
+      if (type === 'image') document.getElementById('subPanelImage').classList.add('active');
+      if (type === 'audio') document.getElementById('subPanelAudio').classList.add('active');
+      if (type === 'mic') document.getElementById('subPanelMic').classList.add('active');
+    }
+
+    async function toggleRecording() {
+      const btn = document.getElementById('btnMicRecord');
+      const status = document.getElementById('statusText');
+
+      if (!isRecording) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          recordedChunks = [];
+
+          mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+          mediaRecorder.onstop = async () => {
+            const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+            recordedAudioBytes = new Uint8Array(await blob.arrayBuffer());
+            const player = document.getElementById('micPreview');
+            player.src = URL.createObjectURL(blob);
+            player.style.display = 'block';
+            saveToAudioVault(blob);
+            status.innerText = "Gravação salva!";
+          };
+
+          mediaRecorder.start();
+          isRecording = true;
+          btn.innerText = "■ Parar Gravação";
+          btn.classList.add('recording');
+        } catch (err) {
+          alert("Erro ao acessar microfone.");
+        }
+      } else {
+        mediaRecorder.stop();
+        mediaRecorder.stream.getTracks().forEach(t => t.stop());
+        isRecording = false;
+        btn.innerText = "● Gravar Áudio";
+        btn.classList.remove('recording');
+      }
+    }
+
+    function saveToAudioVault(blob) {
+      const reader = new FileReader();
+      reader.onloadend = function() {
+        const vault = JSON.parse(localStorage.getItem('panini_audio_vault') || '[]');
+        vault.push({ id: Date.now(), name: `Áudio ${new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`, data: reader.result });
+        localStorage.setItem('panini_audio_vault', JSON.stringify(vault));
+        renderVault();
+      };
+      reader.readAsDataURL(blob);
+    }
+
+    function renderVault() {
+      const list = document.getElementById('vaultList');
+      if(!list) return;
+      list.innerHTML = '';
+      const vault = JSON.parse(localStorage.getItem('panini_audio_vault') || '[]');
+      if (vault.length === 0) {
+        list.innerHTML = '<span style="color:var(--subtext-color); font-size: 0.7rem;">Nenhum áudio salvo.</span>';
+        return;
+      }
+      vault.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'vault-item';
+        div.innerHTML = `<span>${item.name}</span><div class="vault-actions"><button style="background:var(--primary-btn-bg); color:var(--primary-btn-color)" onclick="loadVaultItem(${item.id})">Usar</button><button style="background:#666; color:#fff" onclick="deleteVaultItem(${item.id})">X</button></div>`;
+        list.appendChild(div);
+      });
+    }
+
+    async function loadVaultItem(id) {
+      const vault = JSON.parse(localStorage.getItem('panini_audio_vault') || '[]');
+      const item = vault.find(i => i.id === id);
+      if (!item) return;
+      const res = await fetch(item.data);
+      recordedAudioBytes = new Uint8Array(await (await res.blob()).arrayBuffer());
+      const player = document.getElementById('micPreview');
+      player.src = item.data;
+      player.style.display = 'block';
+      document.getElementById('statusText').innerText = `"${item.name}" pronto.`;
+    }
+
+    function deleteVaultItem(id) {
+      let vault = JSON.parse(localStorage.getItem('panini_audio_vault') || '[]');
+      vault = vault.filter(i => i.id !== id);
+      localStorage.setItem('panini_audio_vault', JSON.stringify(vault));
+      renderVault();
+    }
+
+    function previewSecretImage(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const img = new Image();
+        img.onload = function() {
+          loadedSecretImage = img;
+          document.getElementById('imgInputLabel').innerText = `Foto: ${file.name.substring(0, 15)}...`;
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function getFormattedImageBytes() {
+      if (!loadedSecretImage) return null;
+      const targetDim = parseInt(document.getElementById('imgResPreset').value);
+      const tempCanvas = document.createElement('canvas');
+      let w = loadedSecretImage.width, h = loadedSecretImage.height;
+      if (w > h) { h = Math.round((h * targetDim) / w); w = targetDim; }
+      else { w = Math.round((w * targetDim) / h); h = targetDim; }
+      tempCanvas.width = w; tempCanvas.height = h;
+      const ctx = tempCanvas.getContext('2d');
+      ctx.drawImage(loadedSecretImage, 0, 0, w, h);
+      const blob = await new Promise(resolve => tempCanvas.toBlob(resolve, 'image/jpeg', 0.60));
+      return new Uint8Array(await blob.arrayBuffer());
+    }
+
+    async function handleAudioSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const arrayBuffer = await file.arrayBuffer();
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      rawAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+      document.getElementById('audioInputLabel').innerText = `${file.name.substring(0, 15)}...`;
+    }
+
+    async function compressAudio(audioBuffer) {
+      return new Promise((resolve) => {
+        const offlineCtx = new OfflineAudioContext(1, audioBuffer.duration * 16000, 16000);
+        const source = offlineCtx.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(offlineCtx.destination);
+        source.start();
+
+        offlineCtx.startRendering().then(renderedBuffer => {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const dest = audioCtx.createMediaStreamDestination();
+          const sourceNode = audioCtx.createBufferSource();
+          sourceNode.buffer = renderedBuffer;
+          sourceNode.connect(dest);
+
+          let recorder = new MediaRecorder(dest.stream);
+          const chunks = [];
+          recorder.ondataavailable = e => chunks.push(e.data);
+          recorder.onstop = async () => {
+            const blob = new Blob(chunks, { type: 'audio/webm' });
+            audioCtx.close();
+            resolve(new Uint8Array(await blob.arrayBuffer()));
+          };
+          recorder.start();
+          sourceNode.start();
+          setTimeout(() => { recorder.stop(); sourceNode.stop(); }, (renderedBuffer.duration * 1000) + 200);
+        });
+      });
+    }
+
+    async function compressText(text) {
+      const stream = new Blob([text]).stream().pipeThrough(new CompressionStream('gzip'));
+      return new Uint8Array(await new Response(stream).arrayBuffer());
+    }
+
+    async function decompressText(compressedBytes) {
+      const stream = new Blob([compressedBytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+      return await new Response(stream).text();
+    }
+
+    function encodeDataInCanvas(ctx, width, height, payloadBytes, type) {
+      const header = HEADERS[type];
+      const len = payloadBytes.length;
+      const payload = new Uint8Array(4 + 4 + len);
+      payload.set(header, 0);
+      payload[4] = (len >> 24) & 0xFF; payload[5] = (len >> 16) & 0xFF; payload[6] = (len >> 8) & 0xFF; payload[7] = len & 0xFF;
+      payload.set(payloadBytes, 8);
+
+      const imgData = ctx.getImageData(0, 0, width, height);
+      const data = imgData.data;
+      const totalBits = payload.length * 8;
+
+      if (totalBits > (width * height)) return alert(`Tamanho excede limite.`);
+
+      for (let i = 0; i < totalBits; i++) {
+        const byteIdx = Math.floor(i / 8);
+        const bitIdx = 7 - (i % 8);
+        const bit = (payload[byteIdx] >> bitIdx) & 1;
+        const pixelAlphaIdx = (i * 4) + 3;
+        data[pixelAlphaIdx] = (data[pixelAlphaIdx] & 0xFE) | bit;
+      }
+      ctx.putImageData(imgData, 0, 0);
+    }
+
+    function cyrb128(str) {
+      let h1 = 1779033703, h2 = 3144134277, h3 = 1013904242, h4 = 2773480762;
+      for (let i = 0, ch; i < str.length; i++) {
+        ch = str.charCodeAt(i);
+        h1 = h2 ^ Math.imul(h1 ^ ch, 597399063); h2 = h3 ^ Math.imul(h2 ^ ch, 286986023);
+        h3 = h4 ^ Math.imul(h3 ^ ch, 951274213); h4 = h1 ^ Math.imul(h4 ^ ch, 271604417);
+      }
+      return [(h1^h2^h3^h4)>>>0, (h2^h1)>>>0, (h3^h1)>>>0, (h4^h1)>>>0];
+    }
+
+    function mulberry32(a) {
+      return function() {
+        var t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      }
+    }
+
+    function drawSplatter(ctx, x, y, radius, rand) {
+      ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2);
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      ctx.fillStyle = isDark ? '#ffffff' : '#111111'; 
+      ctx.globalAlpha = 0.05 + rand() * 0.15; ctx.fill();
+      const dots = 6 + Math.floor(rand() * 8);
+      for (let d = 0; d < dots; d++) {
+        const angle = rand() * Math.PI * 2, dist = radius + rand() * 30, dotR = 0.5 + rand() * 2.0;
+        ctx.beginPath(); ctx.arc(x + dist * Math.cos(angle), y + dist * Math.sin(angle), dotR, 0, Math.PI * 2);
+        ctx.globalAlpha = 0.15 + rand() * 0.45; ctx.fill();
+      }
+    }
+
+    function drawLogogram(phase = 0) {
+      const canvas = document.getElementById('heptacanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      let seedText = "Panini-Default";
+      if (selectedPayloadType === 'text') seedText = document.getElementById('inputText').value.trim() || "Logograma";
+      else if (selectedPayloadType === 'image') seedText = "Secret-Image";
+      else seedText = "Secret-Audio";
+
+      const seed = cyrb128(seedText);
+      const rand = mulberry32(seed[0]);
+      const centerX = canvas.width / 2, centerY = canvas.height / 2, baseRadius = 350;
+
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const strokeColor = isDark ? '#f7f6f2' : '#111111';
+
+      for (let layer = 0; layer < 10; layer++) {
+        ctx.beginPath();
+        const breath = Math.sin(phase + layer * 0.35) * 12 + Math.cos(phase * 0.5) * 6;
+        const layerRadius = baseRadius + (rand() * 30 - 15) + breath;
+        const points = 360;
+        for (let i = 0; i <= points; i++) {
+          const angle = (i * Math.PI) / 180;
+          const organicWave = Math.sin(angle * 4 + phase * 2) * 5;
+          const noise = Math.sin(angle * (2 + Math.floor(rand() * 4))) * (12 + rand() * 20) + organicWave;
+          const r = layerRadius + noise + (rand() - 0.5) * 5;
+          const x = centerX + r * Math.cos(angle);
+          const y = centerY + r * Math.sin(angle);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 1 + rand() * 6;
+        ctx.globalAlpha = 0.15 + rand() * 0.4;
+        ctx.stroke();
+      }
+
+      for (let b = 0; b < 18; b++) {
+        const sAngle = rand() * Math.PI * 2;
+        const sRadius = baseRadius + (rand() * 80 - 40) + Math.sin(phase) * 8;
+        drawSplatter(ctx, centerX + sRadius * Math.cos(sAngle), centerY + sRadius * Math.sin(sAngle), 6 + rand() * 20, rand);
+      }
+
+      ctx.globalAlpha = 1.0;
+      if (cachedPayloadBytes) {
+        encodeDataInCanvas(ctx, canvas.width, canvas.height, cachedPayloadBytes, selectedPayloadType);
+      }
+    }
+
+    async function processAndGenerate() {
+      const status = document.getElementById('statusText');
+      if (selectedPayloadType === 'text') {
+        const text = document.getElementById('inputText').value.trim() || "Logograma";
+        cachedPayloadBytes = await compressText(text);
+      } else if (selectedPayloadType === 'image') {
+        if (!loadedSecretImage) return alert('Selecione uma imagem!');
+        cachedPayloadBytes = await getFormattedImageBytes();
+      } else if (selectedPayloadType === 'audio') {
+        if (!rawAudioBuffer) return alert('Selecione um áudio!');
+        cachedPayloadBytes = await compressAudio(rawAudioBuffer);
+      } else if (selectedPayloadType === 'mic') {
+        if (!recordedAudioBytes) return alert('Grave um áudio!');
+        cachedPayloadBytes = recordedAudioBytes;
+      }
+
+      status.innerText = "Logograma sintetizado!";
+      startLiveAnimation();
+    }
+
+    function startLiveAnimation() {
+      if (animationId) cancelAnimationFrame(animationId);
+      function loop() {
+        currentAnimPhase += 0.025;
+        drawLogogram(currentAnimPhase);
+        animationId = requestAnimationFrame(loop);
+      }
+      loop();
+    }
+
+    function saveGif() {
+      const status = document.getElementById('statusText');
+      status.innerText = "Gerando GIF (aguarde um instante)...";
+
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = 300;
+      tempCanvas.height = 300;
+      const tCtx = tempCanvas.getContext('2d');
+
+      const totalFrames = 10;
+      const imagesArray = [];
+      let currentIdx = 0;
+
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const canvasBgColor = isDark ? '#181818' : '#fafaf8';
+
+      function captureNextFrame() {
+        currentAnimPhase += (Math.PI * 2) / totalFrames;
+        drawLogogram(currentAnimPhase);
+
+        const sourceCanvas = document.getElementById('heptacanvas');
+        tCtx.fillStyle = canvasBgColor;
+        tCtx.fillRect(0, 0, 300, 300);
+        tCtx.drawImage(sourceCanvas, 0, 0, 300, 300);
+
+        imagesArray.push(tempCanvas.toDataURL('image/png'));
+        currentIdx++;
+
+        if (currentIdx < totalFrames) {
+          setTimeout(captureNextFrame, 30);
+        } else {
+          gifshot.createGIF({
+            images: imagesArray,
+            interval: 0.1,
+            numFrames: totalFrames,
+            width: 300,
+            height: 300
+          }, function(obj) {
+            if (!obj.error) {
+              const link = document.createElement('a');
+              link.download = `logograma-${Date.now()}.gif`;
+              link.href = obj.image;
+              link.click();
+              status.innerText = "GIF salvo no celular!";
+            } else {
+              status.innerText = "Erro ao gerar GIF.";
+            }
+          });
+        }
+      }
+      captureNextFrame();
+    }
+
+    async function decodeDataFromImage(img) {
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = img.width; tempCanvas.height = img.height;
+      const ctx = tempCanvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const data = ctx.getImageData(0, 0, img.width, img.height).data;
+
+      const headerBytes = new Uint8Array(8);
+      for (let i = 0; i < 64; i++) {
+        const byteIdx = Math.floor(i / 8);
+        const bit = data[(i * 4) + 3] & 1;
+        headerBytes[byteIdx] = (headerBytes[byteIdx] << 1) | bit;
+      }
+
+      let detectedType = null;
+      for (const [type, h] of Object.entries(HEADERS)) {
+        if (headerBytes[0] === h[0] && headerBytes[1] === h[1] && headerBytes[2] === h[2] && headerBytes[3] === h[3]) {
+          detectedType = type;
+          break;
+        }
+      }
+
+      if (!detectedType) return null;
+
+      const payloadLen = ((headerBytes[4] << 24) >>> 0) + (headerBytes[5] << 16) + (headerBytes[6] << 8) + headerBytes[7];
+      if (payloadLen <= 0 || payloadLen > (img.width * img.height) / 8) return null;
+
+      const payloadBytes = new Uint8Array(payloadLen);
+      const startBit = 64;
+      const totalBits = payloadLen * 8;
+
+      for (let i = 0; i < totalBits; i++) {
+        const byteIdx = Math.floor(i / 8);
+        const bit = data[((startBit + i) * 4) + 3] & 1;
+        payloadBytes[byteIdx] = (payloadBytes[byteIdx] << 1) | bit;
+      }
+
+      if (detectedType === 'text') {
+        return { type: 'text', data: await decompressText(payloadBytes) };
+      } else if (detectedType === 'image') {
+        return { type: 'image', data: URL.createObjectURL(new Blob([payloadBytes], { type: 'image/jpeg' })) };
+      } else if (detectedType === 'audio' || detectedType === 'mic') {
+        return { type: 'audio', data: URL.createObjectURL(new Blob([payloadBytes], { type: 'audio/webm' })) };
+      }
+    }
+
+    function processImageFile(file) {
+      if (!file) return alert('Selecione um arquivo.');
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = async function() {
+          const result = await decodeDataFromImage(img);
+          const area = document.getElementById('decodedContentArea');
+          const header = document.getElementById('decodedHeader');
+          area.innerHTML = '';
+
+          if (result) {
+            if (result.type === 'text') {
+              const text = result.data;
+              const isUrl = /^https?:\/\/[^\s]+$/i.test(text.trim());
+              if (isUrl) {
+                header.innerText = 'Link Oculto';
+                area.innerHTML = `<p class="original-text">"${text}"</p><a href="${text}" target="_blank" rel="noopener noreferrer" class="link-btn">Abrir Link</a>`;
+              } else {
+                header.innerText = 'Texto Oculto';
+                area.innerHTML = `<p class="original-text">"${text}"</p>`;
+              }
+            } else if (result.type === 'image') {
+              header.innerText = 'Foto Revelada';
+              area.innerHTML = `<img class="extracted-image" src="${result.data}">`;
+            } else if (result.type === 'audio') {
+              header.innerText = 'Áudio Extraído';
+              area.innerHTML = `<audio controls src="${result.data}"></audio>`;
+            }
+          } else {
+            header.innerText = 'Não encontrado';
+            area.innerHTML = '<p class="original-text" style="color: var(--subtext-color);">Nenhum dado oculto encontrado.</p>';
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleFileSelect(e) { processImageFile(e.target.files[0]); }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+
+      if (tab === 'encoder') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('encoderPanel').classList.add('active');
+      } else {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('decoderPanel').classList.add('active');
+      }
+    }
+
+    function saveImage() {
+      const canvas = document.getElementById('heptacanvas');
+      const link = document.createElement('a');
+      link.download = `logograma-${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    window.onload = async () => {
+      initTheme();
+      renderVault();
+      cachedPayloadBytes = await compressText(document.getElementById('inputText').value);
+      startLiveAnimation();
+    };
+  </script>
+</body>
+</html>
